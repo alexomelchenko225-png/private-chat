@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Наш чат ❤️</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+display:flex;
+flex-direction:column;
+align-items:center;
+margin:0;
+height:100vh;
+}
+
+#chat{
+width:90%;
+max-width:500px;
+height:60vh;
+background:#1e293b;
+overflow:auto;
+padding:10px;
+border-radius:10px;
+}
+
+.message{
+margin:5px;
+padding:8px;
+background:#334155;
+border-radius:6px;
+}
+
+input{
+padding:10px;
+width:70%;
+border:none;
+border-radius:6px;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:6px;
+background:#38bdf8;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Наш секретный чат ❤️</h2>
+
+<div id="chat"></div>
+
+<div>
+<input id="msg" placeholder="Напиши сообщение">
+<button onclick="send()">Отправить</button>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
+<script>
+
+const firebaseConfig = {
+apiKey: "demo",
+authDomain: "demo",
+databaseURL: "demo",
+projectId: "demo",
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+const chat = document.getElementById("chat");
+
+function send(){
+
+let text = document.getElementById("msg").value;
+
+db.ref("messages").push({
+message:text
+});
+
+document.getElementById("msg").value="";
+}
+
+db.ref("messages").on("child_added", function(data){
+
+let div=document.createElement("div");
+div.className="message";
+div.innerText=data.val().message;
+
+chat.appendChild(div);
+
+});
+
+</script>
+
+</body>
+</html>
