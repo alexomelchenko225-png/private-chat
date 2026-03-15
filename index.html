@@ -2,43 +2,63 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Наш чат ❤️</title>
+<title>Наш чат</title>
 
 <style>
 
 body{
+margin:0;
 font-family:Arial;
 background:#0f172a;
 color:white;
 display:flex;
 flex-direction:column;
-align-items:center;
-margin:0;
 height:100vh;
 }
 
-#chat{
-width:90%;
-max-width:500px;
-height:60vh;
+header{
 background:#1e293b;
-overflow:auto;
-padding:10px;
-border-radius:10px;
+padding:15px;
+font-size:18px;
 }
 
-.message{
-margin:5px;
+#chat{
+flex:1;
+overflow:auto;
+padding:10px;
+}
+
+.msg{
+background:#1e293b;
 padding:8px;
-background:#334155;
-border-radius:6px;
+margin:5px 0;
+border-radius:8px;
+max-width:70%;
+}
+
+.name{
+font-size:12px;
+opacity:0.7;
+}
+
+img{
+max-width:200px;
+border-radius:8px;
+margin-top:5px;
+}
+
+#sendBox{
+display:flex;
+padding:10px;
+background:#1e293b;
 }
 
 input{
+flex:1;
 padding:10px;
-width:70%;
 border:none;
 border-radius:6px;
+margin-right:5px;
 }
 
 button{
@@ -49,58 +69,131 @@ background:#38bdf8;
 cursor:pointer;
 }
 
+#login{
+position:absolute;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#0f172a;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+}
+
 </style>
 
 </head>
 
 <body>
 
-<h2>Наш секретный чат ❤️</h2>
+<div id="login">
+
+<h2>Вход в чат</h2>
+
+<input id="nick" placeholder="Никнейм"><br><br>
+
+<input id="pass" placeholder="Пароль" type="password"><br><br>
+
+<button onclick="enter()">Войти</button>
+
+</div>
+
+<header>Наш чат ❤️</header>
 
 <div id="chat"></div>
 
-<div>
-<input id="msg" placeholder="Напиши сообщение">
-<button onclick="send()">Отправить</button>
-</div>
+<div id="sendBox">
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+<input id="text" placeholder="Сообщение">
+
+<input type="file" id="photo">
+
+<button onclick="send()">➤</button>
+
+</div>
 
 <script>
 
-const firebaseConfig = {
-apiKey: "demo",
-authDomain: "demo",
-databaseURL: "demo",
-projectId: "demo",
-};
+const PASSWORD="1234";
 
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+let nickname="";
 
-const chat = document.getElementById("chat");
+function enter(){
+
+let p=document.getElementById("pass").value;
+
+if(p!==PASSWORD){
+alert("Неверный пароль");
+return;
+}
+
+nickname=document.getElementById("nick").value || "Гость";
+
+document.getElementById("login").style.display="none";
+
+}
+
+const chat=document.getElementById("chat");
 
 function send(){
 
-let text = document.getElementById("msg").value;
+let text=document.getElementById("text").value;
 
-db.ref("messages").push({
-message:text
-});
+let file=document.getElementById("photo").files[0];
 
-document.getElementById("msg").value="";
+let msg=document.createElement("div");
+msg.className="msg";
+
+msg.innerHTML="<div class='name'>"+nickname+"</div>"+text;
+
+if(file){
+
+let reader=new FileReader();
+
+reader.onload=function(e){
+
+let img=document.createElement("img");
+
+img.src=e.target.result;
+
+msg.appendChild(img);
+
+chat.appendChild(msg);
+
+save();
+
 }
 
-db.ref("messages").on("child_added", function(data){
+reader.readAsDataURL(file);
 
-let div=document.createElement("div");
-div.className="message";
-div.innerText=data.val().message;
+}else{
 
-chat.appendChild(div);
+chat.appendChild(msg);
 
-});
+save();
+
+}
+
+document.getElementById("text").value="";
+}
+
+function save(){
+
+localStorage.setItem("chatdata",chat.innerHTML);
+
+}
+
+window.onload=function(){
+
+chat.innerHTML=localStorage.getItem("chatdata")||"";
+
+if(Notification.permission!=="granted"){
+Notification.requestPermission();
+}
+
+}
 
 </script>
 
